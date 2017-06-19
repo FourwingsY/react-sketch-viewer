@@ -7,7 +7,7 @@ axios.defaults.headers.common["Content-Type"] = "application/json;charset=UTF-8"
  * for JSON request
  */
 const axiosJSON = axios.create({
-	baseURL: "/target"
+	baseURL: "./target"
 })
 
 axiosJSON.interceptors.request.use(config => {

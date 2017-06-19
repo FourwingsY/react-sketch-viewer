@@ -23,7 +23,7 @@ class Bitmap extends React.Component {
 		}
 
 		// TODO: support other image formats
-		const src = `target/${image._ref}.png`
+		const src = `./target/${image._ref}.png`
 
 		return (
 			<img className="bitmap" style={style} data-sketch-name={name} src={src} />
