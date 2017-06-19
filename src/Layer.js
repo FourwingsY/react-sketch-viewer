@@ -13,6 +13,9 @@ import Text from './layers/Text'
 
 function Layer(props) {
 	const {layer} = props
+	if (layer.isVisible === false) {
+		return null
+	}
 	switch(layer._class) {
 		case 'artboard':
 		case 'symbolMaster':

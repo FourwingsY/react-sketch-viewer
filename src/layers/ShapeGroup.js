@@ -35,11 +35,7 @@ class ShapeGroup extends React.Component {
 
 	render() {
 		const layer = this.props.layer
-		const {name, layers: childLayers, isVisible} = layer
-
-		if (!isVisible) {
-			return null
-		}
+		const {name, layers: childLayers} = layer
 
 		const simpleStyle = new Style(layer)
 		const svgStyle = new SvgStyle(layer)

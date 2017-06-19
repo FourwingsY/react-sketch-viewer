@@ -103,6 +103,7 @@ function treatClippingMask(layer) {
 			maskGroup.mask = maskGroup.layers[0]
 			maskGroup._class = 'maskGroup'
 			maskGroup.layers = []
+			maskGroup.isVisible = true
 		}
 		else if (!maskGroup) {
 			layers.push(layer)
