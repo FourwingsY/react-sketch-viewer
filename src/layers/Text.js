@@ -22,6 +22,8 @@ class Text extends React.Component {
 		const textStyle = new TextStyle(layer)
 
 		const style = {
+			display: 'inline-block',
+			overflow: 'hidden',
 			...getPositionStyle(layer),
 			...textStyle.getStyle(),
 		}

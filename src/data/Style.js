@@ -98,7 +98,7 @@ class Style {
 	}
 
 	getBorder() {
-		if (!this.style.borders) {
+		if (!this.style.borders || !this.style.borders.isEnabled) {
 			return {thickness: 0, color: new Color()}
 		}
 
@@ -111,7 +111,7 @@ class Style {
 	}
 
 	getShadow() {
-		if (!this.style.shadows) {
+		if (!this.style.shadows || !this.style.shadows[0].isEnabled) {
 			return null
 		}
 		const {offsetX, offsetY, blurRadius, spread, color} = this.style.shadows[0]
