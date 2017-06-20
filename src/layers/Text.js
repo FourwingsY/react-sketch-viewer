@@ -21,21 +21,39 @@ class Text extends React.Component {
 
 		const textStyle = new TextStyle(layer)
 
-		const style = {
+		const paragraphStyle = {
 			display: 'inline-block',
 			overflow: 'hidden',
 			...getPositionStyle(layer),
-			...textStyle.getStyle(),
+			...textStyle.getParagraphStyle(),
 		}
 
-		const decodedText = decodeText(attributedString.archivedAttributedString)
-		const text = decodedText.NSString
+		const decodedTextAttributes = decodeText(attributedString.archivedAttributedString)
+		const text = decodedTextAttributes.NSString
 
 		return (
-			<span className="text" style={style}>
-				{text}
-			</span>
+			<p className="text" style={paragraphStyle}>
+				{decodedTextAttributes.NSAttributeInfo
+					? this.renderSubTexts()
+					: <span style={textStyle.getTextStyle()}>{text}</span>
+				}
+			</p>
 		)
+	}
+
+	renderSubTexts() {
+		const textStyle = new TextStyle(this.props.layer)
+		const decodedTextAttributes = decodeText(this.props.layer.attributedString.archivedAttributedString)
+		const text = decodedTextAttributes.NSString
+		const subStringStyles = decodedTextAttributes.NSAttributeInfo["NS.data"]
+		const subTexts = []
+		for (let i = 0, s = 0, l = subStringStyles.length / 2; i < l; i++) {
+			const charCount = subStringStyles[i * 2]
+			const styleIndex = subStringStyles[i * 2 + 1]
+			subTexts.push(<span key={i} style={textStyle.getTextStyle(styleIndex)}>{text.slice(s, s + charCount)}</span>)
+			s += charCount
+		}
+		return subTexts
 	}
 
 }

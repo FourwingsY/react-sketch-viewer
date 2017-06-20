@@ -13,78 +13,18 @@ class TextStyle {
 		this.textStyle = layer.style.textStyle
 	}
 
-	// get style from attributedString
-	getStyle() {
-		let fillColor
-		if (this.layer.style.fills) {
-			fillColor = new Color(this.layer.style.fills[0].color)
-		}
-
-		const style = {
-			...this.getTextStyle(),
-			...this.getParagraphStyle(),
-		}
-
-		if (fillColor) {
-			style.color = fillColor.getRgba()
-		}
-
-		return style
-	}
-
-	getTextStyle() {
-		const decodedText = decodeText(this.layer.attributedString.archivedAttributedString)
-		let {
+	_getStyle(attributes) {
+		const {
 			MSAttributedStringFontAttribute,
 			NSColor,
-		} = decodedText.NSAttributes
-
-		// TODO: in this case, single text contains multiple styles
-		if (!MSAttributedStringFontAttribute) {
-			const {
-				MSAttributedStringFontAttribute,
-				NSColor,
-				// NSKern,
-				// NSParagraphStyle,
-			} = this.textStyle.encodedAttributes
-
-			const fontAttribute = decodeText(MSAttributedStringFontAttribute)
-			const fontSize = fontAttribute.NSFontDescriptorAttributes.NSFontSizeAttribute
-			const fontFamily = fontAttribute.NSFontDescriptorAttributes.NSFontNameAttribute
-			return {
-				color: this.decodeColor(NSColor),
-				fontSize,
-				fontFamily,
-			}
-		}
+			NSKern,
+			NSParagraphStyle,
+		} = attributes
 
 		const fontSize = MSAttributedStringFontAttribute.NSFontDescriptorAttributes.NSFontSizeAttribute
 		const fontFamily = MSAttributedStringFontAttribute.NSFontDescriptorAttributes.NSFontNameAttribute
-
-		return {
-			color: this.decodeColor(NSColor),
-			fontSize,
-			fontFamily,
-		}
-	}
-
-	// get style from textStyle.encodedAttributes
-	getParagraphStyle() {
-		const {
-			// MSAttributedStringFontAttribute,
-			// NSColor,
-			NSKern,
-			NSParagraphStyle,
-		} = this.textStyle.encodedAttributes
-
-		// const fontAttribute = decodeText(MSAttributedStringFontAttribute)
-		// const fontSize = fontAttribute.NSFontDescriptorAttributes.NSFontSizeAttribute
-		// const fontFamily = fontAttribute.NSFontDescriptorAttributes.NSFontNameAttribute
-
-		const paragraphStyle = decodeText(NSParagraphStyle)
-		console.log(paragraphStyle)
 		let textAlign
-		switch(paragraphStyle.NSAlignment) {
+		switch(NSParagraphStyle.NSAlignment) {
 			case 1: {
 				textAlign = 'left'
 				break
@@ -98,12 +38,60 @@ class TextStyle {
 				break
 			}
 		}
-		let lineHeight = paragraphStyle.NSMaxLineHeight
+		let lineHeight = NSParagraphStyle.NSMaxLineHeight
 
-		return {
+		const style = {
+			color: this.decodeColor(NSColor),
+			fontSize,
+			fontFamily,
 			textAlign,
 			lineHeight: lineHeight ? `${lineHeight}px` : undefined,
+			letterSpacing: `${NSKern}px`,
+			whiteSpace: 'pre-wrap',
 		}
+
+		if (this.layer.style.fills) {
+			let fillColor = new Color(this.layer.style.fills[0].color)
+			style.color = fillColor.getRgba()
+		}
+
+		return style
+	}
+
+	// get style from textStyle.encodedAttributes
+	getParagraphStyle() {
+		const {
+			MSAttributedStringFontAttribute,
+			NSColor,
+			NSKern,
+			NSParagraphStyle,
+		} = this.textStyle.encodedAttributes
+
+		const fontAttribute = decodeText(MSAttributedStringFontAttribute)
+		const paragraphStyle = decodeText(NSParagraphStyle)
+
+		return this._getStyle({
+			MSAttributedStringFontAttribute: fontAttribute,
+			NSColor,
+			NSKern,
+			NSParagraphStyle: paragraphStyle,
+		})
+	}
+
+	getTextStyle(styleIndex = null) {
+		const decodedTextAttributes = decodeText(this.layer.attributedString.archivedAttributedString)
+		const {
+			NSAttributes,
+		} = decodedTextAttributes
+
+		// has single subText: NSAttributes is an object
+		if (styleIndex === null) {
+			return this._getStyle(NSAttributes)
+		}
+
+		// has many subText: NSAttributes["NS.objects"] is an array of attribute
+		const textAttribute = NSAttributes["NS.objects"][styleIndex]
+		return this._getStyle(textAttribute)
 	}
 
 	decodeColor(NSColor) {

@@ -1,5 +1,6 @@
 body {
 	font-family: 'Helvetica Neue', sans-serif;
+	tab-size: 7;
 	-webkit-font-smoothing: antialiased;
 }
 
@@ -47,4 +48,8 @@ nav .page-nav.active {
 	width: 100%;
 	height: 100%;
 	overflow: hidden;
+}
+
+p {
+	margin: 0;
 }
