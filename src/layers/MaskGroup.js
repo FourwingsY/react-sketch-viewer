@@ -25,7 +25,7 @@ class MaskGroup extends React.Component {
 			width: '100%',
 			height: '100%',
 			overflow: 'hidden',
-			borderRadius: mask.fixedRadius,
+			borderRadius: mask._class === 'oval' ? '50%' : mask.fixedRadius + 'px',
 		}
 
 		return (
