@@ -98,16 +98,15 @@ class Style {
 	}
 
 	getBorder() {
-		if (!this.style.borders || !this.style.borders.isEnabled) {
-			return {thickness: 0, color: new Color()}
+		if (!this.style.borders) {
+			return null
 		}
-
 		const border = this.style.borders[0]
 		if (!border.isEnabled) {
-			return {thickness: 0, color: new Color()}
+			return null
 		}
 
-		return `${border.thickness}px solid ${new Color(border.color).getRgba()}`
+		return `${parseInt(border.thickness)}px solid ${new Color(border.color).getRgba()}`
 	}
 
 	getShadow() {
