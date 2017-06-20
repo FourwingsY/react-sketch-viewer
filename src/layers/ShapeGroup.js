@@ -40,6 +40,7 @@ class ShapeGroup extends React.Component {
 		const simpleStyle = new Style(layer)
 		const svgStyle = new SvgStyle(layer)
 
+		// if parent is svg
 		if (this.context.svgContext) {
 			const style = {
 				...getPositionStyle(layer),
@@ -52,7 +53,9 @@ class ShapeGroup extends React.Component {
 				</g>
 			)
 		}
-		if (this.isSvgContext()) {
+
+		// if this layer has path layer, edited rectangle or edited oval in child layer
+		if (this.isSvgContext() || !childLayers.every(layer => layer.edited === false)) {
 			const style = {
 				...getPositionStyle(layer),
 				...svgStyle.getStyle(),
@@ -70,11 +73,12 @@ class ShapeGroup extends React.Component {
 			...simpleStyle.getStyle(),
 			borderRadius: layer.layers[0]._class === 'oval' ? '50%' : layer.layers[0].fixedRadius + 'px',
 			overflow: 'visible',
+			boxSizing: 'border-box',
 		}
 
 		// if shapeGroup has a single child layer and it is not a path, use div.
 		return (
-			<div className='simpleShape' style={style} />
+			<div className='simpleShape' data-sketch-name={name} style={style} />
 		)
 	}
 
