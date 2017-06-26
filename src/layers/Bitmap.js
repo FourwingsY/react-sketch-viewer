@@ -12,6 +12,9 @@ class Bitmap extends React.Component {
 	render() {
 		const layer = this.props.layer
 		const {name, image} = layer
+		if (!image || !image._ref) {
+			return null
+		}
 
 		const style = {
 			...getPositionStyle(layer),

@@ -19,6 +19,7 @@ class TextStyle {
 			NSColor,
 			NSKern,
 			NSParagraphStyle,
+			NSLigature,
 		} = attributes
 
 		const fontSize = MSAttributedStringFontAttribute.NSFontDescriptorAttributes.NSFontSizeAttribute
@@ -95,6 +96,9 @@ class TextStyle {
 	}
 
 	decodeColor(NSColor) {
+		if (!NSColor) {
+			return null
+		}
 		const decoder = new TextDecoder('utf8');
 		const [red, green, blue, alpha] = decoder.decode(NSColor.NSRGB).split(' ');
 		const textColor = new Color({
