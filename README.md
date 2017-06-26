@@ -18,3 +18,7 @@ original sketch file
 
 rendered preview
 ![Preview](https://github.com/FourwingsY/react-sketch-viewer/blob/master/images/preview.png)
+
+## Sample sources
+- [Fitness App](https://www.dropbox.com/s/w1udlebtbjidg1o/Fitness%20App.sketch?dl=0)
+- [iOS AppStore UI](https://www.sketchappsources.com/free-source/2689-ios-11-app-store-design-uu-sketch-freebie-resource.html)

@@ -13,6 +13,7 @@ class Style {
 			background: this.getBackground(),
 			border: this.getBorder(),
 			boxShadow: this.getShadow(),
+			...this.getBlur(),
 		}
 	}
 
@@ -115,6 +116,20 @@ class Style {
 		}
 		const {offsetX, offsetY, blurRadius, spread, color} = this.style.shadows[0]
 		return `${offsetX}px ${offsetY}px ${blurRadius}px ${spread}px ${new Color(color).getRgba()}`
+	}
+
+	getBlur() {
+		if (!this.style.blur || !this.style.blur.isEnabled) {
+			return {}
+		}
+		const {center, motionAngle, radius, type} = this.style.blur
+
+		// background blur
+		if (type === 3) {
+			return {
+				WebkitBackdropFilter: `blur(${radius}px)`
+			}
+		}
 	}
 
 }

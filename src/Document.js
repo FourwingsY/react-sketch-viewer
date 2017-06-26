@@ -97,26 +97,26 @@ function treatClippingMask(layer) {
 	const childLayers = layer.layers
 	let layers = []
 	let maskGroup = null
-	for (let layer of childLayers) {
-		if (layer.hasClippingMask) {
-			maskGroup = Object.assign({}, layer)
+	for (let childLayer of childLayers) {
+		if (childLayer.hasClippingMask) {
+			maskGroup = Object.assign({}, childLayer)
 			maskGroup.mask = maskGroup.layers[0]
 			maskGroup._class = 'maskGroup'
 			maskGroup.layers = []
 			maskGroup.isVisible = true
 		}
 		else if (!maskGroup) {
-			layers.push(layer)
+			layers.push(childLayer)
 		}
 		else if (maskGroup && layer.shouldBreakMaskChain) {
 			layers.push(maskGroup)
 			maskGroup = null
-			layers.push(layer)
+			layers.push(childLayer)
 		}
 		else if (maskGroup && !layer.shouldBreakMaskChain) {
-			layer.frame.x = layer.frame.x - maskGroup.frame.x
-			layer.frame.y = layer.frame.y - maskGroup.frame.y
-			maskGroup.layers.push(layer)
+			childLayer.frame.x = childLayer.frame.x - maskGroup.frame.x
+			childLayer.frame.y = childLayer.frame.y - maskGroup.frame.y
+			maskGroup.layers.push(childLayer)
 		}
 	}
 	// at last
