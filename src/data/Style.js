@@ -32,70 +32,78 @@ class Style {
 
 		const {width, height} = this.layer.frame
 
-		const backgrounds = this.style.fills.map(fill => {
-			const {
-				isEnabled,
-				color, fillType,
-				gradient,
-				noiseIndex, noiseIntensity,
-				patternFillType, patternTileScale
-			} = fill
+		const colorToGradient = color => `linear-gradient(to top, ${color} 0%, ${color} 100%)`
 
-			if (!isEnabled) {
-				return null
-			}
-			if (!gradient) {
-				return (new Color(color)).getRgba()
-			}
+		const backgrounds = this.style.fills
+			.filter(fill => fill.isEnabled)
+			.map((fill, index) => {
+				const {
+					color, fillType,
+					gradient,
+					noiseIndex, noiseIntensity,
+					patternFillType, patternTileScale
+				} = fill
 
-			// gradient
-			const {
-				elipseLength, // sketch has wrong typo
-				from, to, stops,
-				gradientType,
-			} = gradient
-
-			// linear gradient
-			if (gradientType === 0) {
-				const pointRegex = /{(.+), (.+)}/
-				const [_, startX, startY] = pointRegex.exec(from)
-				const [__, endX, endY] = pointRegex.exec(to)
-
-				const angle = Math.atan2(startX - endX, startY - endY)
-				const degree = angle * 180 / Math.PI
-
-				const colorStops = stops.map(stop => {
-					const color = new Color(stop.color).getRgba()
-					const stopAt = `${stop.position * 100}%`
-					return `${color} ${stopAt}`
-				})
-
-				return `linear-gradient(${degree}deg, ${colorStops.join(',')})`
-			}
-
-			// radial gradient
-			if (gradientType === 1) {
-				let gradientShape = 'circle'
-				if (elipseLength !== 1) {
-					gradientShape = 'ellipse'
+				if (fillType === 0) {
+					if (index === 0) {
+						return (new Color(color)).getRgba()
+					} else {
+						// multiple backgrounds can have only one last background-color
+						// if this is not the last one, describe color as a gradient
+						return colorToGradient((new Color(color)).getRgba())
+					}
 				}
 
-				const pointRegex = /{(.+), (.+)}/
-				const [_, startX, startY] = pointRegex.exec(from)
-				const [__, endX, endY] = pointRegex.exec(to)
+				// if (fillType === 1) : gradient
+				const {
+					elipseLength, // sketch has wrong typo
+					from, to, stops,
+					gradientType,
+				} = gradient
 
-				const gradientSize = Math.max(endY - startY) * height + 'px'
-				const gradientPosition = `${startX * 100}% ${startY * 100}%`
-				const colorStops = stops.map(stop => {
-					const color = new Color(stop.color).getRgba()
-					const stopAt = `${stop.position * 100}%`
-					return `${color} ${stopAt}`
-				})
+				// linear gradient
+				if (gradientType === 0) {
+					const pointRegex = /{(.+), (.+)}/
+					const [_, startX, startY] = pointRegex.exec(from)
+					const [__, endX, endY] = pointRegex.exec(to)
 
-				return `radial-gradient(${gradientShape} ${gradientSize} at ${gradientPosition}, ${colorStops.join(',')})`
-			}
-		})
-		return backgrounds.join(', ')
+					const angle = Math.atan2(startX - endX, startY - endY)
+					const degree = angle * 180 / Math.PI
+
+					const colorStops = stops.map(stop => {
+						const color = new Color(stop.color).getRgba()
+						const stopAt = `${stop.position * 100}%`
+						return `${color} ${stopAt}`
+					})
+
+					return `linear-gradient(${degree}deg, ${colorStops.join(',')})`
+				}
+
+				// radial gradient
+				if (gradientType === 1) {
+					let gradientShape = 'circle'
+					if (elipseLength !== 1) {
+						gradientShape = 'ellipse'
+					}
+
+					const pointRegex = /{(.+), (.+)}/
+					const [_, startX, startY] = pointRegex.exec(from)
+					const [__, endX, endY] = pointRegex.exec(to)
+
+					const gradientSize = Math.max(endY - startY) * height + 'px'
+					const gradientPosition = `${startX * 100}% ${startY * 100}%`
+					const colorStops = stops.map(stop => {
+						const color = new Color(stop.color).getRgba()
+						const stopAt = `${stop.position * 100}%`
+						return `${color} ${stopAt}`
+					})
+
+					return `radial-gradient(${gradientShape} ${gradientSize} at ${gradientPosition}, ${colorStops.join(',')})`
+				}
+			})
+
+		// describe top-layer color first
+		return backgrounds.reverse().join(', ')
 	}
 
 	getBorder() {
