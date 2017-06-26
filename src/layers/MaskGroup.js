@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import Style from '../data/Style'
 import {getPositionStyle} from '../utils/layerUtils'
 
 class MaskGroup extends React.Component {
@@ -26,6 +27,7 @@ class MaskGroup extends React.Component {
 			height: '100%',
 			overflow: 'hidden',
 			borderRadius: mask._class === 'oval' ? '50%' : mask.fixedRadius + 'px',
+			...(new Style(layer).getStyle())
 		}
 
 		return (
