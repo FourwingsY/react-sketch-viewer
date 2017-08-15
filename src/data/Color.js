@@ -15,6 +15,9 @@ class Color {
 		this.alpha = parseFloat(alpha)
 	}
 	getRgba() {
+		if (this.alpha === 1) {
+			return `rgb(${this.red}, ${this.green}, ${this.blue})`
+		}
 		return `rgba(${this.red}, ${this.green}, ${this.blue}, ${this.alpha})`
 	}
 }

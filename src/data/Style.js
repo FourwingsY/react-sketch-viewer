@@ -10,7 +10,7 @@ class Style {
 	getStyle() {
 		return {
 			opacity: this.getOpacity(),
-			background: this.getBackground(),
+			...this.getBackground(),
 			border: this.getBorder(),
 			boxShadow: this.getShadow(),
 			...this.getBlur(),
@@ -32,78 +32,109 @@ class Style {
 
 		const {width, height} = this.layer.frame
 
-		const colorToGradient = color => `linear-gradient(to top, ${color} 0%, ${color} 100%)`
+		const colorToGradient = color => `linear-gradient(to top, ${color}, ${color})`
 
-		const backgrounds = this.style.fills
-			.filter(fill => fill.isEnabled)
-			.map((fill, index) => {
-				const {
-					color, fillType,
-					gradient,
-					noiseIndex, noiseIntensity,
-					patternFillType, patternTileScale
-				} = fill
+		const enabledFills = this.style.fills.filter(fill => fill.isEnabled)
 
-				if (fillType === 0) {
-					if (index === 0) {
-						return (new Color(color)).getRgba()
-					} else {
-						// multiple backgrounds can have only one last background-color
-						// if this is not the last one, describe color as a gradient
-						return colorToGradient((new Color(color)).getRgba())
-					}
+		let backgrounds = []
+		let blendModes = []
+		let backgroundColor = null
+
+		enabledFills.forEach((fill, index) => {
+			const {
+				color, fillType,
+				gradient,
+				noiseIndex, noiseIntensity,
+				patternFillType, patternTileScale,
+				contextSettings,
+			} = fill
+
+			// background color
+			if (index === 0 && fillType === 0) {
+				backgroundColor = (new Color(color)).getRgba()
+				return
+			}
+
+			// extract blend mode
+			if (!contextSettings) {
+				blendModes.push('normal')
+			} else {
+				switch (contextSettings.blendMode) {
+					case 7:
+						blendModes.push('overlay')
+						break
+					case 8:
+						blendModes.push('soft-light')
+						break
+					default:
+						blendModes.push('normal')
+				}
+			}
+
+			// multiple backgrounds can have only one last background-color
+			// if this is not the last one, describe color as a gradient
+			if (fillType === 0) {
+				const bgColor = new Color(color)
+				backgrounds.push(`linear-gradient(to top, ${bgColor.getRgba()}, ${bgColor.getRgba()})`)
+				return
+			}
+
+			// if (fillType === 1) : gradient
+			const {
+				elipseLength, // sketch has wrong typo
+				from, to, stops,
+				gradientType,
+			} = gradient
+
+			// linear gradient
+			if (gradientType === 0) {
+				const pointRegex = /{(.+), (.+)}/
+				const [_, startX, startY] = pointRegex.exec(from)
+				const [__, endX, endY] = pointRegex.exec(to)
+
+				const angle = Math.atan2(startX - endX, startY - endY)
+				const degree = angle * 180 / Math.PI
+
+				const colorStops = stops.map(stop => {
+					const color = new Color(stop.color).getRgba()
+					const stopAt = `${stop.position * 100}%`
+					return `${color} ${stopAt}`
+				})
+
+				backgrounds.push(`linear-gradient(${degree}deg, ${colorStops.join(', ')})`)
+			}
+
+			// radial gradient
+			if (gradientType === 1) {
+				let gradientShape = 'circle'
+				if (elipseLength !== 1) {
+					gradientShape = 'ellipse'
 				}
 
-				// if (fillType === 1) : gradient
-				const {
-					elipseLength, // sketch has wrong typo
-					from, to, stops,
-					gradientType,
-				} = gradient
+				const pointRegex = /{(.+), (.+)}/
+				const [_, startX, startY] = pointRegex.exec(from)
+				const [__, endX, endY] = pointRegex.exec(to)
 
-				// linear gradient
-				if (gradientType === 0) {
-					const pointRegex = /{(.+), (.+)}/
-					const [_, startX, startY] = pointRegex.exec(from)
-					const [__, endX, endY] = pointRegex.exec(to)
+				const gradientSize = Math.max(endY - startY) * height + 'px'
+				const gradientPosition = `${startX * 100}% ${startY * 100}%`
+				const colorStops = stops.map(stop => {
+					const color = new Color(stop.color).getRgba()
+					const stopAt = `${stop.position * 100}%`
+					return `${color} ${stopAt}`
+				})
 
-					const angle = Math.atan2(startX - endX, startY - endY)
-					const degree = angle * 180 / Math.PI
-
-					const colorStops = stops.map(stop => {
-						const color = new Color(stop.color).getRgba()
-						const stopAt = `${stop.position * 100}%`
-						return `${color} ${stopAt}`
-					})
-
-					return `linear-gradient(${degree}deg, ${colorStops.join(',')})`
-				}
-
-				// radial gradient
-				if (gradientType === 1) {
-					let gradientShape = 'circle'
-					if (elipseLength !== 1) {
-						gradientShape = 'ellipse'
-					}
-
-					const pointRegex = /{(.+), (.+)}/
-					const [_, startX, startY] = pointRegex.exec(from)
-					const [__, endX, endY] = pointRegex.exec(to)
-
-					const gradientSize = Math.max(endY - startY) * height + 'px'
-					const gradientPosition = `${startX * 100}% ${startY * 100}%`
-					const colorStops = stops.map(stop => {
-						const color = new Color(stop.color).getRgba()
-						const stopAt = `${stop.position * 100}%`
-						return `${color} ${stopAt}`
-					})
-
-					return `radial-gradient(${gradientShape} ${gradientSize} at ${gradientPosition}, ${colorStops.join(',')})`
-				}
-			})
+				backgrounds.push(`radial-gradient(${gradientShape} ${gradientSize} at ${gradientPosition}, ${colorStops.join(', ')})`)
+			}
+		})
 
 		// describe top-layer color first
-		return backgrounds.reverse().join(', ')
+		const bgStyle = {
+			backgroundImage: backgrounds.reverse().join(', '),
+			backgroundBlendMode: blendModes.reverse().join(', '),
+			backgroundColor: backgroundColor,
+			mixBlendMode: backgrounds.length > 1 ? 'overlay' : '',
+		}
+		return bgStyle
 	}
 
 	getBorder() {
