@@ -2,6 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import cx from 'classnames'
 
+import PageViewer from './PageViewer'
 import Page from './Page'
 import Layer from './Layer'
 import SymbolStore from './globals/SymbolStore'
@@ -65,9 +66,9 @@ class Document extends React.Component {
 				<nav>
 					{document.pages.map(this.renderPageNav)}
 				</nav>
-				<div className="page-viewer">
+				<PageViewer>
 					<Page page={currentPage} key={currentPage.do_objectID} />
-				</div>
+				</PageViewer>
 			</div>
 		)
 	}
