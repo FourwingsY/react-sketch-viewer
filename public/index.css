@@ -1,0 +1,60 @@
+html, body, #app, #document {
+	height: 100%;
+}
+
+body {
+	font-family: 'Helvetica Neue', sans-serif;
+	tab-size: 7;
+	-webkit-font-smoothing: antialiased;
+}
+
+nav {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 245px;
+	height: 100%;
+	background-color: #ECECEC;
+	z-index: 10;
+}
+
+nav .page-nav {
+	height: 28px;
+	line-height: 28px;
+	padding-left: 25px;
+}
+nav .page-nav:nth-child(even) {
+	background-color: #F0F0F0;
+}
+nav .page-nav.active {
+	background-color: #6D9EE1;
+	color: white;
+}
+
+.page-viewer {
+	position: absolute;
+	top: 0;
+	left: 245px;
+	width: 100%;
+	height: 100%;
+}
+
+.artboard {
+	background: white;
+	box-shadow: 0 0 5px 0 rgba(0,0,0,0.2);
+}
+.artboard .artboard-name {
+	position: absolute;
+	top: -25px;
+	font-size: 13px;
+}
+.artboard .artboard-contents {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+
+p {
+	margin: 0;
+}
