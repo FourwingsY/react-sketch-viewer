@@ -17,11 +17,13 @@ class PageViewer extends React.Component {
 	}
 
 	startDrag = e => {
+		e.preventDefault()
 		const {clientX: x, clientY: y} = e
 		this.setState({dragging: true, startPoint: {x, y}})
 	}
 
 	onDrag = e => {
+		e.preventDefault()
 		if (!this.state.dragging) return
 
 		const {x: x0, y: y0} = this.state.panStart
